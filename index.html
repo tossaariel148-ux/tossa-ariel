@@ -2266,10 +2266,63 @@
     title.textContent = card.dataset.title;
 
     if (type === 'mp4') {
-      wrap.innerHTML = `<video controls controlsList="nodownload" oncontextmenu="return false;" autoplay src="${src}" style="width:100%;height:100%;object-fit:contain;background:#000;"></video>`;
+      wrap.innerHTML = `
+        <div style="position:relative;width:100%;height:100%;background:#000;border-radius:12px;overflow:hidden;">
+          <!-- Vidéo sans contrôles -->
+          <video id="mainVideo" src="${src}" autoplay playsinline
+            oncontextmenu="return false;"
+            style="width:100%;height:100%;object-fit:contain;display:block;cursor:pointer;">
+          </video>
+          <!-- Icône pause/play au clic -->
+          <div id="playOverlay"
+            style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;pointer-events:none;">
+            <div style="width:68px;height:68px;background:rgba(0,255,163,0.92);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#000;">
+              <i id="playIcon" class="fas fa-pause"></i>
+            </div>
+          </div>
+          <!-- Bouton replay à la fin -->
+          <div id="replayOverlay"
+            style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);cursor:pointer;">
+            <div style="width:80px;height:80px;background:linear-gradient(135deg,#00ffa3,#00c8ff);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#000;margin-bottom:1rem;">
+              <i class="fas fa-redo"></i>
+            </div>
+            <p style="color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;">Revoir la vidéo</p>
+          </div>
+        </div>`;
+
+      const video   = wrap.querySelector('#mainVideo');
+      const overlay = wrap.querySelector('#playOverlay');
+      const replay  = wrap.querySelector('#replayOverlay');
+      const icon    = wrap.querySelector('#playIcon');
+
+      // Clic vidéo → play / pause
+      video.addEventListener('click', () => {
+        if (video.paused) {
+          video.play();
+          icon.className = 'fas fa-pause';
+          overlay.style.opacity = '1';
+          setTimeout(() => overlay.style.opacity = '0', 800);
+        } else {
+          video.pause();
+          icon.className = 'fas fa-play';
+          overlay.style.opacity = '1';
+        }
+      });
+
+      // Fin → replay
+      video.addEventListener('ended', () => {
+        replay.style.display = 'flex';
+      });
+
+      replay.addEventListener('click', () => {
+        replay.style.display = 'none';
+        video.currentTime = 0;
+        video.play();
+      });
+
     } else {
       const sep = src.includes('?') ? '&' : '?';
-      const embedUrl = src + sep + 'autoplay=1&vq=hd1080&modestbranding=1&rel=0&iv_load_policy=3&showinfo=0&controls=1&disablekb=0&fs=1&playsinline=1';
+      const embedUrl = src + sep + 'autoplay=1&vq=hd1080&modestbranding=1&rel=0&iv_load_policy=3&showinfo=0';
       wrap.innerHTML = `<iframe src="${embedUrl}" allowfullscreen allow="autoplay; fullscreen" frameborder="0" style="width:100%;height:100%;border:none;"></iframe>`;
     }
 
