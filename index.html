@@ -1539,7 +1539,7 @@
            data-video="https://res.cloudinary.com/dstst0jkx/video/upload/lv_0_20260503154559_n0jxcr.mp4"
            data-title="Test YOMI"
            data-type="mp4"
-           onclick="openModal(this)">
+           >
         <div class="video-thumb">
           <img src="https://res.cloudinary.com/dstst0jkx/video/upload/so_6/lv_0_20260503154559_n0jxcr.jpg" alt="Test YOMI">
           <div class="play-btn"><i class="fas fa-play"></i></div>
@@ -1552,7 +1552,7 @@
            data-video="https://res.cloudinary.com/dstst0jkx/video/upload/lv_0_20260409224841_hoopx3.mp4"
            data-title="Pourquoi le montage vidéo ?"
            data-type="mp4"
-           onclick="openModal(this)">
+           >
         <div class="video-thumb">
           <img src="https://res.cloudinary.com/dstst0jkx/video/upload/so_6/lv_0_20260409224841_hoopx3.jpg" alt="Pourquoi le montage vidéo ?">
           <div class="play-btn"><i class="fas fa-play"></i></div>
@@ -1565,7 +1565,7 @@
            data-video="https://res.cloudinary.com/dstst0jkx/video/upload/lv_0_20260420212351_lujz8z.mp4"
            data-title="Le Freelancing dans toute son ampleur"
            data-type="mp4"
-           onclick="openModal(this)">
+           >
         <div class="video-thumb">
           <img src="https://res.cloudinary.com/dstst0jkx/video/upload/so_6/lv_0_20260420212351_lujz8z.jpg" alt="Le Freelancing dans toute son ampleur">
           <div class="play-btn"><i class="fas fa-play"></i></div>
@@ -1578,7 +1578,7 @@
            data-video="https://res.cloudinary.com/dstst0jkx/video/upload/lv_0_20260424190733_diqmtn.mp4"
            data-title="L'incontournable LinkedIn"
            data-type="mp4"
-           onclick="openModal(this)">
+           >
         <div class="video-thumb">
           <img src="https://res.cloudinary.com/dstst0jkx/video/upload/so_6/lv_0_20260424190733_diqmtn.jpg" alt="L'incontournable LinkedIn">
           <div class="play-btn"><i class="fas fa-play"></i></div>
@@ -1591,7 +1591,7 @@
            data-video="https://res.cloudinary.com/dstst0jkx/video/upload/lv_0_20260502201034_wd9w55.mp4"
            data-title="Who's Next?"
            data-type="mp4"
-           onclick="openModal(this)">
+           >
         <div class="video-thumb">
           <img src="https://res.cloudinary.com/dstst0jkx/video/upload/so_6/lv_0_20260502201034_wd9w55.jpg" alt="Who's Next?">
           <div class="play-btn"><i class="fas fa-play"></i></div>
@@ -1607,7 +1607,7 @@
            data-video="https://www.youtube.com/embed/VIDEO_ID"
            data-title="TITRE DE LA VIDÉO"
            data-type="youtube"
-           onclick="openModal(this)">
+           >
         <div class="video-thumb">
           <div class="thumb-clean">
             <div class="thumb-play-icon"><i class="fas fa-play"></i></div>
@@ -2213,7 +2213,14 @@
     if (!isOpen) item.classList.add('open');
   }
 
-  /* ===== CAROUSEL ===== */
+    /* Empêche tout clic de naviguer ailleurs */
+    document.querySelectorAll('.video-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openModal(this);
+      });
+    });
   const track   = document.getElementById('carouselTrack');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
