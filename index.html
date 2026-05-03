@@ -1367,7 +1367,7 @@
              </div>
         ====================================================== -->
         <div class="hero-photo">
-          <img src="https://res.cloudinary.com/dstst0jkx/image/upload/_DSC7922.jpg_vjw7my.jpg" alt="Ariel Tossa">
+          <img src="https://res.cloudinary.com/dstst0jkx/image/upload/_DSC7913.jpg_mdjrcb.jpg" alt="Ariel Tossa">
         </div>
       </div>
     </div>
@@ -2260,9 +2260,18 @@
     title.textContent = card.dataset.title;
 
     if (type === 'mp4') {
-      wrap.innerHTML = `<video controls autoplay src="${src}"></video>`;
+      wrap.innerHTML = `
+        <div style="position:relative;width:100%;height:100%;background:#000;border-radius:12px;overflow:hidden;">
+          <!-- Vidéo floue en arrière-plan -->
+          <video src="${src}" autoplay muted loop
+            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(18px) brightness(0.5) scale(1.1);transform:scale(1.1);pointer-events:none;">
+          </video>
+          <!-- Vidéo principale au premier plan -->
+          <video controls controlsList="nodownload" oncontextmenu="return false;" autoplay src="${src}"
+            style="position:relative;z-index:2;width:100%;height:100%;object-fit:contain;">
+          </video>
+        </div>`;
     } else {
-      // Paramètres YouTube : autoplay + HD forcé (vq=hd1080) + no branding
       const sep = src.includes('?') ? '&' : '?';
       const embedUrl = src + sep + 'autoplay=1&vq=hd1080&modestbranding=1&rel=0&iv_load_policy=3&showinfo=0&controls=1&disablekb=0&fs=1&playsinline=1';
       wrap.innerHTML = `<iframe src="${embedUrl}" allowfullscreen allow="autoplay; fullscreen" frameborder="0" style="width:100%;height:100%;border:none;"></iframe>`;
