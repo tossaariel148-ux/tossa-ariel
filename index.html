@@ -841,73 +841,53 @@
     }
 
     /* ===========================
-       MODAL VIDÉO
+       LECTEUR VIDÉO PLEIN ÉCRAN
     =========================== */
-    .modal-overlay {
+    .video-fullscreen {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.9);
+      background: #000;
       z-index: 9999;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(8px);
     }
-    .modal-overlay.active { display: flex; }
-    .modal-box {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 1.5rem;
-      width: 90%;
-      max-width: 840px;
-      position: relative;
+    .video-fullscreen.active { display: flex; }
+    .video-fullscreen video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
-    .modal-close {
-      position: absolute;
-      top: -16px; right: -16px;
-      width: 38px; height: 38px;
-      background: var(--neon);
+    /* Bouton fermer */
+    .vf-close {
+      position: fixed;
+      top: 20px; right: 20px;
+      width: 44px; height: 44px;
+      background: rgba(0,255,163,0.9);
       border-radius: 50%;
       display: flex; align-items:center; justify-content:center;
       color: #000;
-      font-size: 1rem;
+      font-size: 1.1rem;
       cursor: pointer;
       border: none;
       font-weight: 700;
-      z-index: 10;
+      z-index: 10000;
       transition: transform .2s;
     }
-    .modal-close:hover { transform: rotate(90deg) scale(1.1); }
-    .modal-video-wrap {
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
+    .vf-close:hover { transform: rotate(90deg) scale(1.1); }
+    /* Overlay replay */
+    .vf-replay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.75);
+      z-index: 10001;
+      cursor: pointer;
     }
-    .modal-video-wrap iframe,
-    .modal-video-wrap video {
-      width: 100%; height: 100%;
-      border: none;
-    }
-    /* Barre du bas YouTube masquée */
-    .modal-video-wrap::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 40px;
-      background: #000;
-      pointer-events: none;
-      z-index: 2;
-    }
-    .modal-title {
-      font-family: var(--font-h);
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-top: 1rem;
-    }
+    .vf-replay.show { display: flex; }
 
     /* ===========================
        OFFRES / PRICING — NEW DESIGN
@@ -1639,12 +1619,15 @@
   </div>
 </section>
 
-<!-- MODAL VIDÉO -->
-<div class="modal-overlay" id="videoModal" onclick="closeModalOutside(event)">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-    <div class="modal-video-wrap" id="modalVideoWrap"></div>
-    <p class="modal-title" id="modalTitle"></p>
+<!-- LECTEUR VIDÉO PLEIN ÉCRAN -->
+<div class="video-fullscreen" id="videoFullscreen">
+  <button class="vf-close" id="vfClose"><i class="fas fa-times"></i></button>
+  <video id="vfVideo" playsinline oncontextmenu="return false;"></video>
+  <div class="vf-replay" id="vfReplay">
+    <div style="width:80px;height:80px;background:linear-gradient(135deg,#00ffa3,#00c8ff);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#000;margin-bottom:1rem;">
+      <i class="fas fa-redo"></i>
+    </div>
+    <p style="color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;">Revoir la vidéo</p>
   </div>
 </div>
 
@@ -2262,96 +2245,43 @@
     });
   }
 
-  /* ===== MODAL VIDÉO ===== */
-  function openModal(card) {
-    const modal = document.getElementById('videoModal');
-    const wrap  = document.getElementById('modalVideoWrap');
-    const title = document.getElementById('modalTitle');
-    const src   = card.dataset.video;
-    const type  = card.dataset.type;
+  /* ===== LECTEUR PLEIN ÉCRAN ===== */
+  const vfScreen = document.getElementById('videoFullscreen');
+  const vfVideo  = document.getElementById('vfVideo');
+  const vfClose  = document.getElementById('vfClose');
+  const vfReplay = document.getElementById('vfReplay');
 
-    title.textContent = card.dataset.title;
-
-    if (type === 'mp4') {
-      wrap.innerHTML = `
-        <div style="position:relative;width:100%;height:100%;background:#000;border-radius:12px;overflow:hidden;">
-          <!-- Vidéo sans contrôles -->
-          <video id="mainVideo" src="${src}" autoplay playsinline
-            oncontextmenu="return false;"
-            style="width:100%;height:100%;object-fit:contain;display:block;cursor:pointer;">
-          </video>
-          <!-- Icône pause/play au clic -->
-          <div id="playOverlay"
-            style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;pointer-events:none;">
-            <div style="width:68px;height:68px;background:rgba(0,255,163,0.92);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#000;">
-              <i id="playIcon" class="fas fa-pause"></i>
-            </div>
-          </div>
-          <!-- Bouton replay à la fin -->
-          <div id="replayOverlay"
-            style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);cursor:pointer;">
-            <div style="width:80px;height:80px;background:linear-gradient(135deg,#00ffa3,#00c8ff);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#000;margin-bottom:1rem;">
-              <i class="fas fa-redo"></i>
-            </div>
-            <p style="color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;">Revoir la vidéo</p>
-          </div>
-        </div>`;
-
-      const video   = wrap.querySelector('#mainVideo');
-      const overlay = wrap.querySelector('#playOverlay');
-      const replay  = wrap.querySelector('#replayOverlay');
-      const icon    = wrap.querySelector('#playIcon');
-
-      // Clic vidéo → play / pause
-      video.addEventListener('click', () => {
-        if (video.paused) {
-          video.play();
-          icon.className = 'fas fa-pause';
-          overlay.style.opacity = '1';
-          setTimeout(() => overlay.style.opacity = '0', 800);
-        } else {
-          video.pause();
-          icon.className = 'fas fa-play';
-          overlay.style.opacity = '1';
-        }
-      });
-
-      // Fin → replay
-      video.addEventListener('ended', () => {
-        replay.style.display = 'flex';
-      });
-
-      replay.addEventListener('click', () => {
-        replay.style.display = 'none';
-        video.currentTime = 0;
-        video.play();
-      });
-
-    } else {
-      const sep = src.includes('?') ? '&' : '?';
-      const embedUrl = src + sep + 'autoplay=1&vq=hd1080&modestbranding=1&rel=0&iv_load_policy=3&showinfo=0';
-      wrap.innerHTML = `<iframe src="${embedUrl}" allowfullscreen allow="autoplay; fullscreen" frameborder="0" style="width:100%;height:100%;border:none;"></iframe>`;
-    }
-
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
+  document.querySelectorAll('.video-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const src = this.dataset.video;
+      vfVideo.src = src;
+      vfScreen.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      vfReplay.classList.remove('show');
+      vfVideo.play().catch(() => {});
+    });
+  });
 
   function closeModal() {
-    const modal = document.getElementById('videoModal');
-    const wrap  = document.getElementById('modalVideoWrap');
-    modal.classList.remove('active');
-    wrap.innerHTML = ''; // Stoppe la lecture
+    vfScreen.classList.remove('active');
+    vfVideo.pause();
+    vfVideo.src = '';
     document.body.style.overflow = '';
+    vfReplay.classList.remove('show');
   }
 
-  function closeModalOutside(event) {
-    if (event.target === document.getElementById('videoModal')) {
-      closeModal();
-    }
-  }
+  vfClose.addEventListener('click', closeModal);
 
-  // Fermer avec Escape
+  vfVideo.addEventListener('ended', () => vfReplay.classList.add('show'));
+
+  vfReplay.addEventListener('click', () => {
+    vfReplay.classList.remove('show');
+    vfVideo.currentTime = 0;
+    vfVideo.play();
+  });
+
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeModal();
   });
